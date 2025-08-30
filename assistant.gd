@@ -1,3 +1,5 @@
+# assistant.gd (atualizado)
+
 extends Area2D
 
 @onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
@@ -17,6 +19,26 @@ func _ready():
 	dialog_label.text = ""
 	sim_button.hide()
 	rng.randomize()
+
+# --- Nova função chamada quando tudo é desbloqueado pela primeira vez ---
+func _on_all_unlocked_first_time():
+	# Muda a animação para "duvidoso"
+	sprite.animation = "duvidoso"
+	sprite.play()
+	
+	# Mostra o diálogo com a frase que você quiser
+	dialog_label.show()
+	# --- AQUI É ONDE VOCÊ ALTERA A FRASE ---
+	dialog_label.text = "Como você conseguiu tudo isso? Ah, não importa, bobão."
+	# --- ---
+	
+	# Opcional: Inicia um timer para voltar à animação default depois
+	# await get_tree().create_timer(3.0).timeout
+	# if is_instance_valid(self) and sprite.animation == "duvidoso":
+	#     sprite.animation = "default"
+	#     sprite.play()
+# ---
+
 
 func _on_input_event(viewport, event, shape_idx):
 	if event is InputEventMouseButton and event.pressed:

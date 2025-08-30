@@ -224,6 +224,7 @@ offset_bottom = 40.0
 script = ExtResource("3_s135h")
 assistant_path = NodePath("../assistant")
 input_display_path = NodePath("../Calculadora/PanelContainer/VBoxContainer/InputDisplay")
+calculator_path = NodePath("../Calculadora")
 
 [node name="7" type="Panel" parent="ButtonBlocker"]
 layout_mode = 0
@@ -342,7 +343,7 @@ position = Vector2(17.1875, 18.5606)
 scale = Vector2(0.944906, 0.699811)
 texture = ExtResource("4_oeqi2")
 
-[node name="*" type="Panel" parent="ButtonBlocker"]
+[node name="asterisco" type="Panel" parent="ButtonBlocker"]
 layout_mode = 0
 offset_left = 235.0
 offset_top = 320.0
@@ -350,7 +351,7 @@ offset_right = 275.0
 offset_bottom = 360.0
 scale = Vector2(1.92, 2.64)
 
-[node name="Sprite2D" type="Sprite2D" parent="ButtonBlocker/*"]
+[node name="Sprite2D" type="Sprite2D" parent="ButtonBlocker/asterisco"]
 position = Vector2(17.1875, 18.5606)
 scale = Vector2(0.944906, 0.699811)
 texture = ExtResource("4_oeqi2")

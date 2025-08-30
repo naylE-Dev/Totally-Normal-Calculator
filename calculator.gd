@@ -1,4 +1,10 @@
+# calculator.gd (atualizado com o sinal)
+
 extends Control
+
+# --- Sinal adicionado ---
+signal expression_evaluated(result, expression_string)
+# ---
 
 @onready var input_display: LineEdit = $PanelContainer/VBoxContainer/InputDisplay
 @onready var grid_container: GridContainer = $PanelContainer/VBoxContainer/GridContainer
@@ -13,9 +19,13 @@ func setup_calculator() -> void:
 
 func _on_button_pressed(value: String) -> void:
 	if value == "=":
-		var expression = input_display.get_text()
-		var result = _evaluate_expression(expression)
-		input_display.set_text(_format_result(result))
+		var expression_string = input_display.get_text() # Captura a expressão antes de avaliar
+		var result = _evaluate_expression(expression_string)
+		var formatted_result = _format_result(result)
+		input_display.set_text(formatted_result)
+		# --- Emite o sinal após a avaliação ---
+		emit_signal("expression_evaluated", result, expression_string)
+		# ---
 	elif value == "C":
 		input_display.set_text("")
 	else:
@@ -25,11 +35,21 @@ func _on_button_pressed(value: String) -> void:
 func _evaluate_expression(expression: String) -> float:
 	var result: float = 0.0
 	var error_message: String = "Error"
+	# --- Verificação de divisão por zero textual simples ---
+	var clean_expr = expression.replace(" ", "")
+	if "/0" in clean_expr:
+		# Emite um sinal específico para divisão por zero tentada
+		emit_signal("divided_by_zero_attempt", expression)
+	# --- ---
 	var expr = Expression.new()
 	var error = expr.parse(expression, [])
 	if error == OK:
 		result = expr.execute([], null, true)
 		if expr.has_execute_failed():
+			# Verifica se o erro foi especificamente divisão por zero
+			# Infinito positivo ou negativo indica divisão por zero
+			if is_inf(result):
+				emit_signal("divided_by_zero_executed", expression, result)
 			input_display.set_text(error_message)
 			return 0.0
 	else:
@@ -43,3 +63,8 @@ func _format_result(value: float) -> String:
 		return str(int(value))
 	# Senão, mostra decimal normal (ex: 4.5, 3.14159)
 	return str(value)
+
+# --- Sinais para divisão por zero ---
+signal divided_by_zero_attempt(original_expression)
+signal divided_by_zero_executed(original_expression, result)
+# ---
