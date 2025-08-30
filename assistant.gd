@@ -36,7 +36,7 @@ func _ready():
 		saber? Não importa, bobão."
 		sim_button.hide()
 		# Esconde o assistant após alguns segundos
-		await get_tree().create_timer(4.0).timeout
+		await get_tree().create_timer(10.0).timeout
 		sprite.animation = "default"
 		sprite.play()
 		dialog_label.text = ""
