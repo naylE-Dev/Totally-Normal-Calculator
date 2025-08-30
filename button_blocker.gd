@@ -156,14 +156,6 @@ func _unlock_cover(key: String):
 		covers[key].hide()
 		print("Desbloqueado:", key)
 
-		# Verifica se TUDO foi desbloqueado após este desbloqueio
-		# (alternativa à verificação em _on_calculator_expression_evaluated)
-		# if not all_unlocked_permanently and _is_everything_unlocked():
-		#     all_unlocked_permanently = true
-		#     _save_progress()
-		#     print("TUDO FOI DESBLOQUEADO!")
-		#     _show_main_assistant_and_make_free()
-
 func _all_numbers_unlocked() -> bool:
 	if all_unlocked_permanently:
 		return true # Se está tudo livre, considera como desbloqueado
@@ -189,7 +181,7 @@ func _is_everything_unlocked() -> bool:
 	# dos nós Panel filhos do ButtonBlocker e às chaves usadas em _unlock_cover
 	# Estes são os botões que começam bloqueados e precisam ser "desbloqueados"
 	# durante o modo troll.
-	var all_keys_to_unlock = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "-", "asterisco", "barra"]
+	var all_keys_to_unlock = ["0", "2", "3", "4", "5", "6", "7", "8", "9", "-", "asterisco", "barra"]
 	# NOTA: "1", "+", "=", "C" começam desbloqueados, então não precisam estar em 'unlocked'
 	for key in all_keys_to_unlock:
 		if not unlocked.has(key):
@@ -211,8 +203,6 @@ func _show_main_assistant_and_make_free():
 # --- Função para tornar a calculadora completamente livre ---
 func _make_calculator_fully_free():
 	# Esconde todos os covers
-	_block_all() # Reutiliza, mas como all_unlocked_permanently é true, não faz nada
-	# Ou esconde explicitamente:
 	for key in covers.keys():
 		if covers[key] != null and covers[key] is CanvasItem:
 			covers[key].hide() # Garante que estejam escondidos
@@ -223,11 +213,6 @@ func _make_calculator_fully_free():
 
 	# Permite a edição no input display
 	input_display.editable = true
-
-	# Desconecta os sinais para evitar processamento desnecessário?
-	# (Opcional, depende se você quiser manter alguma lógica)
-	# if calculator != null:
-	#     calculator.disconnect("expression_evaluated", Callable(self, "_on_calculator_expression_evaluated"))
 
 	print("Calculadora agora está completamente livre!")
 
