@@ -1,4 +1,4 @@
-[gd_scene load_steps=20 format=3 uid="uid://vcwf6xqyqml0"]
+[gd_scene load_steps=21 format=3 uid="uid://vcwf6xqyqml0"]
 
 [ext_resource type="Script" uid="uid://chltblvabroym" path="res://calculator.gd" id="1_jvx5q"]
 [ext_resource type="Script" uid="uid://c14vkj54gjxwe" path="res://input_display.gd" id="2_s135h"]
@@ -16,6 +16,7 @@
 [ext_resource type="Texture2D" uid="uid://bih6ndsf1sgbv" path="res://assistantrindo1.png" id="12_2y4nb"]
 [ext_resource type="Texture2D" uid="uid://cylvds88xia4e" path="res://assistantrindo2.png" id="13_tyfku"]
 [ext_resource type="Texture2D" uid="uid://brovj1bkshkny" path="res://assistantrindo3.png" id="14_u0o8a"]
+[ext_resource type="PackedScene" uid="uid://bfbk10gfd3m80" path="res://Final_Screen.tscn" id="17_avgk0"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_b7xt3"]
 font_size = 12
@@ -402,6 +403,7 @@ text = "Sim"
 z_index = 10
 position = Vector2(325, 161)
 script = ExtResource("3_oeqi2")
+calculator_path = NodePath("../Calculadora")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="assistant"]
 position = Vector2(-10, 22)
@@ -414,6 +416,9 @@ frame_progress = 0.944444
 [node name="CollisionShape2D" type="CollisionShape2D" parent="assistant"]
 position = Vector2(-12, 8)
 shape = SubResource("RectangleShape2D_ixuri")
+
+[node name="FinalScreen" parent="." instance=ExtResource("17_avgk0")]
+visible = false
 
 [connection signal="pressed" from="SimButton" to="assistant" method="_on_sim_button_pressed"]
 [connection signal="input_event" from="assistant" to="assistant" method="_on_input_event"]

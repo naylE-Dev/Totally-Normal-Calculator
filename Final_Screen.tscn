@@ -1,0 +1,49 @@
+[gd_scene load_steps=5 format=3 uid="uid://bfbk10gfd3m80"]
+
+[ext_resource type="Script" uid="uid://dykdinutg7ocr" path="res://final_screen.gd" id="1_87fmy"]
+[ext_resource type="Texture2D" uid="uid://dbmwprmf27yck" path="res://EndingTemplate.png" id="2_jw633"]
+[ext_resource type="FontFile" uid="uid://vinagb4jddqu" path="res://Times New Roman Bold.ttf" id="3_jw633"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_a1q55"]
+font = ExtResource("3_jw633")
+font_size = 25
+
+[node name="FinalScreen" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_87fmy")
+
+[node name="Background" type="TextureRect" parent="."]
+layout_mode = 0
+offset_left = -120.0
+offset_top = -267.0
+offset_right = 4353.0
+offset_bottom = 5900.0
+scale = Vector2(0.15, 0.15)
+texture = ExtResource("2_jw633")
+
+[node name="Button" type="Button" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="LabelTitle" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_top = -111.0
+offset_right = 1.0
+offset_bottom = -88.0
+grow_horizontal = 2
+grow_vertical = 0
+label_settings = SubResource("LabelSettings_a1q55")

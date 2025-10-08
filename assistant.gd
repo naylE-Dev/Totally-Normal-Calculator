@@ -1,7 +1,7 @@
-# assistant.gd (atualizado)
-
 extends Area2D
 
+@export var calculator_path: NodePath
+@onready var calculator: Node = null
 @onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
 @onready var dialog_label = get_parent().get_node("DialogLabel")
 @onready var sim_button: Button = get_parent().get_node("SimButton")
@@ -11,112 +11,98 @@ signal modo_troll
 
 var is_awake = false
 var dialog_stage = 0
-var can_click = true  # controla cooldown
-var first_time_interaction = true  # controla se é a primeira vez
+var can_click = true
+var first_time_interaction = true
 
-# Constantes para persistência
 const CONFIG_FILE_NAME = "user://calculator_progress.cfg"
 const FIRST_TIME_INTERACTION_KEY = "first_time_interaction_completed"
 
 func _ready():
+	# tenta pegar o nó da calculadora
+	if calculator_path != NodePath(""):
+		calculator = get_node_or_null(calculator_path)
+
 	_load_first_time_status()
-	
+	rng.randomize()
+
 	if first_time_interaction:
-		# Primeira vez - assistant dormindo
+		# Primeira vez abrindo o jogo
 		sprite.animation = "dormindo"
 		sprite.play()
 		dialog_label.text = ""
 		sim_button.hide()
 	else:
-		# Não é a primeira vez - assistant já está acordado e duvidoso
+		# Volta ao jogo depois de já ter jogado antes
 		sprite.animation = "duvidoso"
 		sprite.play()
-		dialog_label.text = "Como você conseguiu derrotar o 
-		meu sistema maligno? Ah, quer 
-		saber? Não importa, bobão."
+
+		var possible_lines = [
+			"Ah... olha só quem voltou.",
+			"Você de novo? Pensei que
+			tivesse desistido.",
+			"Bem-vindo de volta, 
+			gênio da matemática...",
+			"Não acredito que 
+			abriu isso outra vez.",
+			"Ah, ótimo... 
+			o masoquista voltou."
+		]
+		dialog_label.text = possible_lines[rng.randi_range(0, possible_lines.size() - 1)]
 		sim_button.hide()
-		# Esconde o assistant após alguns segundos
-		await get_tree().create_timer(10.0).timeout
+
+		await get_tree().create_timer(4.0).timeout
+		if is_instance_valid(dialog_label):
+			dialog_label.text = ""
 		sprite.animation = "default"
 		sprite.play()
-		dialog_label.text = ""
 
-	
-	rng.randomize()
+	# conecta finais da calculadora
+	if calculator and not calculator.is_connected("ending_reached", Callable(self, "_on_ending_reached")):
+		calculator.connect("ending_reached", Callable(self, "_on_ending_reached"))
 
+# --- persistência ---
 func _load_first_time_status():
 	var config = ConfigFile.new()
 	if config.load(CONFIG_FILE_NAME) == OK:
 		first_time_interaction = config.get_value("progress", FIRST_TIME_INTERACTION_KEY, true)
-		print("First time interaction status loaded: ", first_time_interaction)
 	else:
-		print("No config file found. First time interaction: true")
 		first_time_interaction = true
 
 func _save_first_time_status():
 	var config = ConfigFile.new()
-	# Carrega o arquivo existente primeiro para não sobrescrever outros dados
 	if config.load(CONFIG_FILE_NAME) != OK:
-		# Se não existe, cria um novo
 		pass
-	
 	config.set_value("progress", FIRST_TIME_INTERACTION_KEY, first_time_interaction)
-	var err = config.save(CONFIG_FILE_NAME)
-	if err != OK:
-		push_error("Failed to save first time status")
-	else:
-		print("First time status saved successfully")
+	config.save(CONFIG_FILE_NAME)
 
-# --- Nova função chamada quando tudo é desbloqueado pela primeira vez ---
-func _on_all_unlocked_first_time():
-	# Muda a animação para "duvidoso"
-	sprite.animation = "duvidoso"
-	sprite.play()
-	
-	# Mostra o diálogo com a frase específica
-	dialog_label.show()
-	dialog_label.text = "Como você conseguiu derrotar
-	 o meu sistema maligno?
-	  Ah, quer saber, não importa, bobão."
-	
-	# Esconde o assistant após alguns segundos
-	await get_tree().create_timer(4.0).timeout
-	if is_instance_valid(self):
-		hide()
-		dialog_label.hide()
-# ---
-
+# --- interação inicial ---
+var COOLDOWN_TIME = 1.0
 func _on_input_event(viewport, event, shape_idx):
-	# Se não é a primeira vez, não permite interação
 	if not first_time_interaction:
 		return
-		
 	if event is InputEventMouseButton and event.pressed:
 		if not can_click:
-			return # ainda em cooldown
+			return
 		can_click = false
-		_start_cooldown(1.0) # 1 segundo de espera entre cliques
+		_start_cooldown(COOLDOWN_TIME)
 
 		match dialog_stage:
 			0:
 				await _wake_up()
-				dialog_label.text = "EI, SE TA MALUCO CARA,
-				 QUEM É VO-"
+				dialog_label.text = "EI, SE TA MALUCO CARA, 
+				QUEM É VO-"
 				dialog_stage += 1
-
 			1:
 				sprite.animation = "default"
 				sprite.play()
-				dialog_label.text = "ahahahaha, você é 
-				só mais um idiota!"
+				dialog_label.text = "ahahahaha, você é só mais 
+				um idiota!"
 				dialog_stage += 1
-
 			2:
 				dialog_label.text ="O que você quer? é só uma 
 				calculadora normal cara, 
-				sai daqui"
+				sai daqui."
 				dialog_stage += 1
-
 			3:
 				dialog_label.text = "O que você esperava? um jogo?"
 				dialog_stage += 1
@@ -140,25 +126,67 @@ func _random_reaction():
 	sprite.play()
 
 func _on_sim_button_pressed():
-	dialog_label.text = "Bem, você já me irritou demais,
-	 aqui tá o seu jogo."
+	dialog_label.text = "Bem, você já me irritou 
+	demais, aqui tá o seu jogo."
 	sprite.animation = "rindo"
 	sprite.play()
 	await get_tree().create_timer(1.5).timeout
 	sprite.animation = "default"
 	sprite.play()
 	sim_button.hide()
+
 	emit_signal("modo_troll")
-	
-	# Marca que a interação inicial foi completada
-	first_time_interaction = false
-	_save_first_time_status()
-	
 	await get_tree().create_timer(2.0).timeout
+
 	hide()
 	dialog_label.hide()
 
-# -------- utilitário --------
+# --- chamado pelo button_blocker quando tudo é desbloqueado ---
+func _on_all_unlocked_first_time():
+	print("Assistant reagindo ao desbloqueio completo!")
+	first_time_interaction = false
+	_save_first_time_status()
+
+	show()
+	dialog_label.show()
+
+	sprite.animation = "duvidoso"
+	sprite.play()
+
+	dialog_label.text = "Como você conseguiu derrotar 
+	o meu sistema maligno? 
+	Ah, quer saber? 
+	Não importa, bobão."
+
+	await get_tree().create_timer(4.0).timeout
+
+	if is_instance_valid(dialog_label):
+		dialog_label.hide()
+	sprite.animation = "default"
+	sprite.play()
+
+# --- finais (placeholders) ---
+func _on_ending_reached(final_id: String, expression: String):
+	if final_id == "div_zero":
+		_react_div_zero(expression)
+
+func _react_div_zero(expression: String):
+	show()
+	dialog_label.show()
+	dialog_label.text = "VOCÊ... tentou dividir 
+	por ZERO?! Seu 
+	doente mental!"
+	sprite.animation = "puto"
+	sprite.play()
+	await get_tree().create_timer(2.0).timeout
+	dialog_label.text = "Chega, acabou a brincadeira!"
+	await get_tree().create_timer(1.5).timeout
+	var final_screen = preload("res://Final_Screen.tscn").instantiate()
+	get_tree().root.add_child(final_screen)
+	final_screen.show_final("Tu é doente mano? 
+	Querendo quebrar 
+	meu jogo? Que idiota.")
+
 func _start_cooldown(time: float) -> void:
 	await get_tree().create_timer(time).timeout
 	can_click = true

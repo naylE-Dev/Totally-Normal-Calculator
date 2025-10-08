@@ -4,6 +4,7 @@ var allowed_characters = "0123456789+-*/.(),"
 
 func _ready() -> void:
 	text_changed.connect(_on_text_changed)
+	editable = false  # trava o teclado
 
 func _on_text_changed(new_text: String) -> void:
 	var cursor_position = get_caret_column()
