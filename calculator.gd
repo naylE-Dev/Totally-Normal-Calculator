@@ -20,13 +20,15 @@ func _on_button_pressed(value: String) -> void:
 		var expression_string = input_display.get_text()
 		var result = _evaluate_expression(expression_string)
 
+		# Formata o resultado (pra casos válidos)
+		var formatted_result = _format_result(result)
+
 		# Verifica se um final foi acionado com base no resultado
 		if _check_for_ending(result, expression_string):
-			# Final foi acionado, não mostra o resultado normalmente
-			# A lógica do final é tratada em _check_for_ending e onde quer que ending_reached seja ouvido
+			# Final foi acionado e deve impedir exibição (ex: div_zero)
 			return
 
-		var formatted_result = _format_result(result)
+		# Se não impediu, exibe o resultado (ex: pra 42)
 		input_display.set_text(formatted_result)
 		emit_signal("expression_evaluated", result, expression_string)
 
@@ -128,12 +130,16 @@ func _format_result(value: float) -> String:
 func _check_for_ending(result: float, expression: String) -> bool:
 	# Verifica se o resultado indica um final específico
 	if is_inf(result) or str(result) == "nan":
-		# Emite o sinal de final alcançado para divisão por zero
-		# Outros finais podem ser adicionados com 'elif' aqui
+		# Emite o sinal de final alcançado para divisão por zero e impede exibição
 		emit_signal("ending_reached", "div_zero", expression)
-		return true
+		return true  # Impede set_text
 	# Adicione mais verificações de finais aqui, por exemplo:
-	# elif result == 42:
-	#     emit_signal("ending_reached", "the_answer", expression)
-	#     return true
+	elif result == 42:
+		# Emite o sinal, mas permite exibição do resultado
+		emit_signal("ending_reached", "42", expression)
+		return false  # Continua e faz set_text
+
+	elif result == 67:
+		emit_signal("ending_reached", "67", expression)
+		return false
 	return false

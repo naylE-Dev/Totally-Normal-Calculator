@@ -169,6 +169,55 @@ func _on_all_unlocked_first_time():
 func _on_ending_reached(final_id: String, expression: String):
 	if final_id == "div_zero":
 		_react_div_zero(expression)
+	
+	
+	elif final_id == "42":
+		_react_42(expression)
+
+	elif final_id == "67":
+		_react_67(expression)
+
+func _react_67(expression: String):
+	show()
+	dialog_label.show()
+	dialog_label.text = "Esse número... 
+	não... você condenou
+	a todos nós..."
+	sprite.animation = "duvidoso"
+	sprite.play()
+	await get_tree().create_timer(5.0).timeout
+	var final_screen = preload("res://Final_Screen.tscn").instantiate()
+	get_tree().root.add_child(final_screen)
+	final_screen.show_final("SIX SEVEN!!!")
+
+
+
+func _react_42(expression: String):
+	show()
+	dialog_label.show()
+	dialog_label.text = "42? Sério que você 
+	acha que esse é o sentido da vida?"
+	sprite.animation = "duvidoso"
+	sprite.play()
+	await get_tree().create_timer(5.0).timeout
+	dialog_label.text = "Que tal você sair 
+	daqui e viver a sua vida, 
+	ao invés de ficar 
+	procurando respostas fáceis?"
+	await get_tree().create_timer(5.0).timeout
+	sprite.animation = "puto"
+	sprite.play()
+	dialog_label.text = "esse definitivamente 
+	não é o sentido da vida, 
+	eu sei qual é o sentido da vida."
+	await get_tree().create_timer(5.0).timeout
+	dialog_label.text = "Não vou te contar, 
+	é muito mais profundo
+	e você não aguentaria."
+	await get_tree().create_timer(5.0).timeout
+	var final_screen = preload("res://Final_Screen.tscn").instantiate()
+	get_tree().root.add_child(final_screen)
+	final_screen.show_final("Esse NÃO é o sentido da vida.")
 
 func _react_div_zero(expression: String):
 	show()

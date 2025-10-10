@@ -10,8 +10,9 @@ extends Control
 @onready var input_display: LineEdit = get_node(input_display_path)
 @onready var calculator: Node = get_node(calculator_path)
 # --- Onready para o assistant principal (na raiz da cena Calculadora) ---
-@onready var main_assistant: Node = get_parent().get_node("assistant")
-# ---
+@onready var main_assistant: Node = get_node(assistant_path)
+# Ou, se preferir usar get_node():
+# @onready var main_assistant: Node = get_node("Window/assistant")# ---
 
 var covers := {}
 var troll_mode := false

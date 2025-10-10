@@ -1,5 +1,6 @@
-[gd_scene load_steps=21 format=3 uid="uid://vcwf6xqyqml0"]
+[gd_scene load_steps=23 format=3 uid="uid://vcwf6xqyqml0"]
 
+[ext_resource type="Script" uid="uid://carmpxai767ld" path="res://main.gd" id="1_4cigk"]
 [ext_resource type="Script" uid="uid://chltblvabroym" path="res://calculator.gd" id="1_jvx5q"]
 [ext_resource type="Script" uid="uid://c14vkj54gjxwe" path="res://input_display.gd" id="2_s135h"]
 [ext_resource type="Script" uid="uid://dmimckscnoeax" path="res://assistant.gd" id="3_oeqi2"]
@@ -8,6 +9,7 @@
 [ext_resource type="Texture2D" uid="uid://ccpxfoonu7pn5" path="res://cadeado.png" id="4_oeqi2"]
 [ext_resource type="Texture2D" uid="uid://bqs0vsukelqsw" path="res://assistantdormindo1.png" id="5_fldfr"]
 [ext_resource type="Texture2D" uid="uid://cbfysuod7un4j" path="res://assistantdormindo2.png" id="6_4cigk"]
+[ext_resource type="Script" uid="uid://benfrgo178k62" path="res://popup_assistant.gd" id="6_fldfr"]
 [ext_resource type="Texture2D" uid="uid://bm4janq5sg3ll" path="res://assistantdormindo3.png" id="7_j2dfv"]
 [ext_resource type="Texture2D" uid="uid://bv4l4kq746enj" path="res://assistantdormindo4.png" id="8_htjbx"]
 [ext_resource type="Texture2D" uid="uid://3j2dewjmd23d" path="res://assistantdormindo5.png" id="9_pe8o3"]
@@ -17,9 +19,6 @@
 [ext_resource type="Texture2D" uid="uid://cylvds88xia4e" path="res://assistantrindo2.png" id="13_tyfku"]
 [ext_resource type="Texture2D" uid="uid://brovj1bkshkny" path="res://assistantrindo3.png" id="14_u0o8a"]
 [ext_resource type="PackedScene" uid="uid://bfbk10gfd3m80" path="res://Final_Screen.tscn" id="17_avgk0"]
-
-[sub_resource type="LabelSettings" id="LabelSettings_b7xt3"]
-font_size = 12
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_8kerd"]
 animations = [{
@@ -88,7 +87,11 @@ animations = [{
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_ixuri"]
 size = Vector2(64, 64)
 
+[sub_resource type="LabelSettings" id="LabelSettings_b7xt3"]
+font_size = 12
+
 [node name="Node" type="Node"]
+script = ExtResource("1_4cigk")
 
 [node name="Calculadora" type="Control" parent="."]
 layout_mode = 3
@@ -102,8 +105,9 @@ layout_mode = 1
 anchors_preset = 4
 anchor_top = 0.5
 anchor_bottom = 0.5
+offset_left = 63.5
 offset_top = -20.0
-offset_right = 310.0
+offset_right = 373.5
 offset_bottom = 510.0
 grow_vertical = 2
 
@@ -224,7 +228,7 @@ anchors_preset = 0
 offset_right = 40.0
 offset_bottom = 40.0
 script = ExtResource("3_s135h")
-assistant_path = NodePath("../assistant")
+assistant_path = NodePath("../PopupAssistant/assistant")
 input_display_path = NodePath("../Calculadora/PanelContainer/VBoxContainer/InputDisplay")
 calculator_path = NodePath("../Calculadora")
 
@@ -384,28 +388,28 @@ position = Vector2(17.1875, 18.5606)
 scale = Vector2(0.944906, 0.699811)
 texture = ExtResource("4_oeqi2")
 
-[node name="DialogLabel" type="Label" parent="."]
-offset_left = 233.0
-offset_top = 81.0
-offset_right = 273.0
-offset_bottom = 104.0
-label_settings = SubResource("LabelSettings_b7xt3")
-
-[node name="SimButton" type="Button" parent="."]
+[node name="FinalScreen" parent="." instance=ExtResource("17_avgk0")]
 visible = false
-offset_left = 324.0
-offset_top = 254.0
-offset_right = 361.0
-offset_bottom = 285.0
-text = "Sim"
 
-[node name="assistant" type="Area2D" parent="."]
+[node name="PopupAssistant" type="Window" parent="."]
+transparent_bg = true
+oversampling_override = 1.0
+title = "Assistant"
+position = Vector2i(350, 97)
+size = Vector2i(250, 250)
+unresizable = true
+always_on_top = true
+transparent = true
+script = ExtResource("6_fldfr")
+
+[node name="assistant" type="Area2D" parent="PopupAssistant"]
 z_index = 10
-position = Vector2(325, 161)
+position = Vector2(154, 190)
+scale = Vector2(2, 2)
 script = ExtResource("3_oeqi2")
-calculator_path = NodePath("../Calculadora")
+calculator_path = NodePath("../../Calculadora")
 
-[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="assistant"]
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="PopupAssistant/assistant"]
 position = Vector2(-10, 22)
 scale = Vector2(1.1839, 1.2239)
 sprite_frames = SubResource("SpriteFrames_8kerd")
@@ -413,12 +417,24 @@ animation = &"rindo"
 frame = 2
 frame_progress = 0.944444
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="assistant"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="PopupAssistant/assistant"]
 position = Vector2(-12, 8)
 shape = SubResource("RectangleShape2D_ixuri")
 
-[node name="FinalScreen" parent="." instance=ExtResource("17_avgk0")]
-visible = false
+[node name="DialogLabel" type="Label" parent="PopupAssistant"]
+offset_left = 39.0
+offset_top = 42.0
+offset_right = 79.0
+offset_bottom = 65.0
+label_settings = SubResource("LabelSettings_b7xt3")
 
-[connection signal="pressed" from="SimButton" to="assistant" method="_on_sim_button_pressed"]
-[connection signal="input_event" from="assistant" to="assistant" method="_on_input_event"]
+[node name="SimButton" type="Button" parent="PopupAssistant"]
+visible = false
+offset_left = 324.0
+offset_top = 254.0
+offset_right = 361.0
+offset_bottom = 285.0
+text = "Sim"
+
+[connection signal="input_event" from="PopupAssistant/assistant" to="PopupAssistant/assistant" method="_on_input_event"]
+[connection signal="pressed" from="PopupAssistant/SimButton" to="PopupAssistant/assistant" method="_on_sim_button_pressed"]
