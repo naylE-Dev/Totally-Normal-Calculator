@@ -87,8 +87,7 @@ animations = [{
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_ixuri"]
 size = Vector2(64, 64)
 
-[sub_resource type="LabelSettings" id="LabelSettings_b7xt3"]
-font_size = 12
+[sub_resource type="Theme" id="Theme_j2dfv"]
 
 [node name="Node" type="Node"]
 script = ExtResource("1_4cigk")
@@ -225,8 +224,10 @@ text = "="
 visible = false
 layout_mode = 3
 anchors_preset = 0
-offset_right = 40.0
-offset_bottom = 40.0
+offset_left = 64.0
+offset_top = 1.0
+offset_right = 104.0
+offset_bottom = 41.0
 script = ExtResource("3_s135h")
 assistant_path = NodePath("../PopupAssistant/assistant")
 input_display_path = NodePath("../Calculadora/PanelContainer/VBoxContainer/InputDisplay")
@@ -395,8 +396,9 @@ visible = false
 transparent_bg = true
 oversampling_override = 1.0
 title = "Assistant"
-position = Vector2i(350, 97)
-size = Vector2i(250, 250)
+position = Vector2i(420, 36)
+size = Vector2i(300, 300)
+exclusive = true
 unresizable = true
 always_on_top = true
 transparent = true
@@ -404,7 +406,7 @@ script = ExtResource("6_fldfr")
 
 [node name="assistant" type="Area2D" parent="PopupAssistant"]
 z_index = 10
-position = Vector2(154, 190)
+position = Vector2(175, 218)
 scale = Vector2(2, 2)
 script = ExtResource("3_oeqi2")
 calculator_path = NodePath("../../Calculadora")
@@ -413,28 +415,30 @@ calculator_path = NodePath("../../Calculadora")
 position = Vector2(-10, 22)
 scale = Vector2(1.1839, 1.2239)
 sprite_frames = SubResource("SpriteFrames_8kerd")
-animation = &"rindo"
-frame = 2
-frame_progress = 0.944444
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="PopupAssistant/assistant"]
+z_index = 4096
 position = Vector2(-12, 8)
 shape = SubResource("RectangleShape2D_ixuri")
 
-[node name="DialogLabel" type="Label" parent="PopupAssistant"]
-offset_left = 39.0
-offset_top = 42.0
-offset_right = 79.0
-offset_bottom = 65.0
-label_settings = SubResource("LabelSettings_b7xt3")
-
 [node name="SimButton" type="Button" parent="PopupAssistant"]
-visible = false
-offset_left = 324.0
-offset_top = 254.0
-offset_right = 361.0
-offset_bottom = 285.0
+offset_left = 217.00003
+offset_top = 222.0
+offset_right = 294.5807
+offset_bottom = 287.0
 text = "Sim"
+
+[node name="DialogLabel" type="Label" parent="PopupAssistant"]
+z_index = 4096
+z_as_relative = false
+offset_left = 20.0
+offset_top = 20.0
+offset_right = 280.0
+offset_bottom = 120.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme = SubResource("Theme_j2dfv")
+autowrap_mode = 1
 
 [connection signal="input_event" from="PopupAssistant/assistant" to="PopupAssistant/assistant" method="_on_input_event"]
 [connection signal="pressed" from="PopupAssistant/SimButton" to="PopupAssistant/assistant" method="_on_sim_button_pressed"]

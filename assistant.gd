@@ -18,12 +18,44 @@ const CONFIG_FILE_NAME = "user://calculator_progress.cfg"
 const FIRST_TIME_INTERACTION_KEY = "first_time_interaction_completed"
 
 func _ready():
+	print("🚀 Assistant _ready() iniciado")
+	
 	# tenta pegar o nó da calculadora
 	if calculator_path != NodePath(""):
 		calculator = get_node_or_null(calculator_path)
+	
+	# Verificar se dialog_label é válido
+	if not dialog_label:
+		print("❌ Erro: dialog_label não encontrado!")
+		print("🔍 Caminho tentado: ", get_parent().get_path())
+		print("🔍 Nós filhos do parent: ", get_parent().get_children())
+		return
+	
+	print("✅ dialog_label encontrado: ", dialog_label)
+	print("🔍 Tipo do dialog_label: ", dialog_label.get_class())
+	print("🔍 Script do dialog_label: ", dialog_label.get_script())
 
 	_load_first_time_status()
 	rng.randomize()
+	
+	print("🔍 Assistant configurado:")
+	print("  - first_time_interaction: ", first_time_interaction)
+	print("  - monitoring: ", monitoring)
+	print("  - visible: ", visible)
+	print("  - position: ", global_position)
+	print("  - collision disabled: ", $CollisionShape2D.disabled)
+	
+	# Garantir que a área de colisão está habilitada
+	$CollisionShape2D.disabled = false
+	monitoring = true
+	
+	# Conectar o sinal programaticamente para garantir que funciona
+	if not is_connected("input_event", Callable(self, "_on_input_event")):
+		connect("input_event", Callable(self, "_on_input_event"))
+		print("✅ Sinal input_event conectado programaticamente")
+	
+	# Também conectar unhandled_input como backup
+	set_process_unhandled_input(true)
 
 	if first_time_interaction:
 		# Primeira vez abrindo o jogo
@@ -31,6 +63,7 @@ func _ready():
 		sprite.play()
 		dialog_label.text = ""
 		sim_button.hide()
+	
 	else:
 		# Volta ao jogo depois de já ter jogado antes
 		sprite.animation = "duvidoso"
@@ -78,10 +111,17 @@ func _save_first_time_status():
 # --- interação inicial ---
 var COOLDOWN_TIME = 1.0
 func _on_input_event(viewport, event, shape_idx):
+	print("🔍 Input event detectado! first_time_interaction: ", first_time_interaction)
+	print("🔍 Event type: ", event.get_class())
+	print("🔍 Mouse button pressed: ", event is InputEventMouseButton and event.pressed)
+	
 	if not first_time_interaction:
+		print("❌ Não é primeira vez, retornando")
 		return
 	if event is InputEventMouseButton and event.pressed:
+		print("✅ Mouse button pressed!")
 		if not can_click:
+			print("⏳ Ainda em cooldown")
 			return
 		can_click = false
 		_start_cooldown(COOLDOWN_TIME)
@@ -89,22 +129,22 @@ func _on_input_event(viewport, event, shape_idx):
 		match dialog_stage:
 			0:
 				await _wake_up()
-				dialog_label.text = "EI, SE TA MALUCO CARA, 
-				QUEM É VO-"
+				dialog_label.text = ("EI, SE TA MALUCO CARA, 
+				QUEM É VO-")
 				dialog_stage += 1
 			1:
 				sprite.animation = "default"
 				sprite.play()
-				dialog_label.text = "ahahahaha, você é só mais 
-				um idiota!"
+				dialog_label.text = ("ahahahaha, você é só mais 
+				um idiota!")
 				dialog_stage += 1
 			2:
-				dialog_label.text ="O que você quer? é só uma 
+				dialog_label.text = ("O que você quer? é só uma 
 				calculadora normal cara, 
-				sai daqui."
+				sai daqui.")
 				dialog_stage += 1
 			3:
-				dialog_label.text = "O que você esperava? um jogo?"
+				dialog_label.text = ("O que você esperava? um jogo?")
 				dialog_stage += 1
 				sim_button.show()
 			_:
@@ -126,8 +166,8 @@ func _random_reaction():
 	sprite.play()
 
 func _on_sim_button_pressed():
-	dialog_label.text = "Bem, você já me irritou 
-	demais, aqui tá o seu jogo."
+	dialog_label.text = ("Bem, você já me irritou 
+	demais, aqui tá o seu jogo.")
 	sprite.animation = "rindo"
 	sprite.play()
 	await get_tree().create_timer(1.5).timeout
@@ -136,32 +176,35 @@ func _on_sim_button_pressed():
 	sim_button.hide()
 
 	emit_signal("modo_troll")
+	
+	# Marca que a interação inicial foi completada
+	first_time_interaction = false
+	_save_first_time_status()
+	
 	await get_tree().create_timer(2.0).timeout
-
 	hide()
-	dialog_label.hide()
+	dialog_label.text = ""
 
 # --- chamado pelo button_blocker quando tudo é desbloqueado ---
 func _on_all_unlocked_first_time():
-	print("Assistant reagindo ao desbloqueio completo!")
 	first_time_interaction = false
 	_save_first_time_status()
 
 	show()
-	dialog_label.show()
+	dialog_label.text = ("")
 
 	sprite.animation = "duvidoso"
 	sprite.play()
 
-	dialog_label.text = "Como você conseguiu derrotar 
+	dialog_label.text = ("Como você conseguiu derrotar 
 	o meu sistema maligno? 
 	Ah, quer saber? 
-	Não importa, bobão."
+	Não importa, bobão.")
 
 	await get_tree().create_timer(4.0).timeout
 
 	if is_instance_valid(dialog_label):
-		dialog_label.hide()
+		dialog_label.text = ""
 	sprite.animation = "default"
 	sprite.play()
 
@@ -179,10 +222,9 @@ func _on_ending_reached(final_id: String, expression: String):
 
 func _react_67(expression: String):
 	show()
-	dialog_label.show()
-	dialog_label.text = "Esse número... 
+	dialog_label.text = ("Esse número... 
 	não... você condenou
-	a todos nós..."
+	a todos nós...")
 	sprite.animation = "duvidoso"
 	sprite.play()
 	await get_tree().create_timer(5.0).timeout
@@ -194,26 +236,25 @@ func _react_67(expression: String):
 
 func _react_42(expression: String):
 	show()
-	dialog_label.show()
-	dialog_label.text = "42? Sério que você 
-	acha que esse é o sentido da vida?"
+	dialog_label.text = ("42? Sério que você 
+	acha que esse é o sentido da vida?")
 	sprite.animation = "duvidoso"
 	sprite.play()
 	await get_tree().create_timer(5.0).timeout
-	dialog_label.text = "Que tal você sair 
+	dialog_label.text = ("Que tal você sair 
 	daqui e viver a sua vida, 
 	ao invés de ficar 
-	procurando respostas fáceis?"
+	procurando respostas fáceis?")
 	await get_tree().create_timer(5.0).timeout
 	sprite.animation = "puto"
 	sprite.play()
-	dialog_label.text = "esse definitivamente 
+	dialog_label.text = ("esse definitivamente 
 	não é o sentido da vida, 
-	eu sei qual é o sentido da vida."
+	eu sei qual é o sentido da vida.")
 	await get_tree().create_timer(5.0).timeout
-	dialog_label.text = "Não vou te contar, 
+	dialog_label.text = ("Não vou te contar, 
 	é muito mais profundo
-	e você não aguentaria."
+	e você não aguentaria.")
 	await get_tree().create_timer(5.0).timeout
 	var final_screen = preload("res://Final_Screen.tscn").instantiate()
 	get_tree().root.add_child(final_screen)
@@ -221,20 +262,26 @@ func _react_42(expression: String):
 
 func _react_div_zero(expression: String):
 	show()
-	dialog_label.show()
-	dialog_label.text = "VOCÊ... tentou dividir 
+	dialog_label.text = ("VOCÊ... tentou dividir 
 	por ZERO?! Seu 
-	doente mental!"
+	doente mental!")
 	sprite.animation = "puto"
 	sprite.play()
 	await get_tree().create_timer(2.0).timeout
-	dialog_label.text = "Chega, acabou a brincadeira!"
+	dialog_label.text = ("Chega, acabou a brincadeira!")
 	await get_tree().create_timer(1.5).timeout
 	var final_screen = preload("res://Final_Screen.tscn").instantiate()
 	get_tree().root.add_child(final_screen)
 	final_screen.show_final("Tu é doente mano? 
 	Querendo quebrar 
 	meu jogo? Que idiota.")
+
+func _unhandled_input(event):
+	print("🔍 _unhandled_input detectado!")
+	if event is InputEventMouseButton and event.pressed:
+		print("🔍 Mouse button via _unhandled_input!")
+		# Chama a mesma lógica do _on_input_event
+		_on_input_event(null, event, 0)
 
 func _start_cooldown(time: float) -> void:
 	await get_tree().create_timer(time).timeout
